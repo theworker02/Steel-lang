@@ -1,0 +1,8 @@
+set name to "Matthew"
+set x to 42
+
+say "User:"
+say name
+
+say "Value:"
+say x

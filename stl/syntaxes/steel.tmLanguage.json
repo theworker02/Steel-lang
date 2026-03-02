@@ -1,0 +1,49 @@
+{
+
+  "scopeName": "source.steel",
+
+  "patterns": [
+
+    {
+
+      "match": "\\b(set|to|say|if|then|end|repeat|times|function|return)\\b",
+
+      "name": "keyword.control.steel"
+
+    },
+
+    {
+
+      "match": "\".*?\"",
+
+      "name": "string.quoted.double.steel"
+
+    },
+
+    {
+
+      "match": "\\b[0-9]+\\b",
+
+      "name": "constant.numeric.steel"
+
+    },
+
+    {
+
+      "match": "[+\\-*/=><!]+",
+
+      "name": "keyword.operator.steel"
+
+    },
+
+    {
+
+      "match": "#.*$",
+
+      "name": "comment.line.steel"
+
+    }
+
+  ]
+
+}

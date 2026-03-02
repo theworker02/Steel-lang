@@ -1,0 +1,70 @@
+{
+
+  "name": "steel-language",
+
+  "displayName": "Steel Language",
+
+  "description": "Syntax highlighting and icons for Steel",
+
+  "version": "0.0.1",
+
+  "publisher": "yourname",
+
+  "engines": {
+
+    "vscode": "^1.80.0"
+
+  },
+
+  "categories": ["Programming Languages"],
+
+  "icon": "icons/steel.png",
+
+  "contributes": {
+
+    "languages": [
+
+      {
+
+        "id": "steel",
+
+        "aliases": ["Steel", "steel"],
+
+        "extensions": [".steel"]
+
+      }
+
+    ],
+
+    "grammars": [
+
+      {
+
+        "language": "steel",
+
+        "scopeName": "source.steel",
+
+        "path": "./syntaxes/steel.tmLanguage.json"
+
+      }
+
+    ],
+
+    "iconThemes": [
+
+      {
+
+        "id": "steel-icons",
+
+        "label": "Steel Icons",
+
+        "path": "./fileicons.json"
+
+      }
+
+    ]
+
+  }
+
+}
+

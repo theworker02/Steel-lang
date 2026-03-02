@@ -1,0 +1,5 @@
+set x to 10 
+
+if x > 5 then
+  say "hello"
+end

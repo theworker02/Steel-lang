@@ -1,0 +1,19 @@
+{
+
+  "iconDefinitions": {
+
+    "steel": {
+
+      "iconPath": "./icons/steel.png"
+
+    }
+
+  },
+
+  "fileExtensions": {
+
+    "steel": "steel"
+
+  }
+
+}

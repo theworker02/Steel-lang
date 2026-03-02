@@ -1,0 +1,8 @@
+set x to 5 + 3
+
+say x
+
+if x > 5 then
+  
+  say "x is greater than 5"
+end
