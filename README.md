@@ -65,6 +65,7 @@ say "Steel is working!"
 end
 
 
+https://steel-lang.base44.app
 
 
 🧩 VS Code Extension:
@@ -83,6 +84,8 @@ Then open the folder in VS code and press: F5
 • Add functions, modules, and advanced features
 • Expand tooling (CLI, debugger, autocomplete)
 
+
+https://steel-lang.base44.app
 
 
 🛠️ Future Plans:
