@@ -1,25 +1,22 @@
 {
   "icon": "icons/steel.png",
-  
-  "name": "steel-lang",
-
+  "name": "steel-lang-2",
   "version": "1.0.0",
-  "files": ["src/","icons/"],
-
+  "files": [
+    "src/",
+    "icons/"
+  ],
   "description": "A simple, human-readable scripting language",
-
   "main": "src/index.js",
-
   "scripts": {
-
     "start": "node src/index.js examples/hello.steel"
-
   },
-
-  "keywords": ["language", "interpreter", "steel"],
-
+  "keywords": [
+    "language",
+    "interpreter",
+    "steel"
+  ],
   "author": "theworker02",
-
   "license": "MIT",
   "repository": {
     "type": "git",
