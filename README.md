@@ -1,6 +1,14 @@
+[![npm](https://img.shields.io/npm/v/steel-lang-2)](https://www.npmjs.com/package/steel-lang-2)
+
 Steel is a simple, readable programming language designed to be easy to learn and intuitive to use.
 
 It focuses on clean syntax, minimal complexity, and fast execution through a custom JavaScript interpreter.
+
+## Install
+
+```bash
+npm install steel-lang-2
+```
 
 
 
