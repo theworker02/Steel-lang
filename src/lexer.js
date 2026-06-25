@@ -6,6 +6,12 @@ const KEYWORDS = {
 
   say: 'SAY',
 
+  if: 'IF',
+
+  then: 'THEN',
+
+  end: 'END',
+
 };
 
 const OPERATORS = { 
@@ -53,6 +59,12 @@ function tokenize(input) {
         value: word.slice(1, -1)
 
       });
+
+    }
+
+    else if (KEYWORDS[word]) {
+
+      tokens.push({ type: KEYWORDS[word] });
 
     }
 
