@@ -4,6 +4,7 @@
   "name": "steel-lang",
 
   "version": "1.0.0",
+  "files": ["src/","icons/"],
 
   "description": "A simple, human-readable scripting language",
 
@@ -19,6 +20,9 @@
 
   "author": "theworker02",
 
-  "license": "MIT"
-
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/magnexis/Steel-lang.git"
+  }
 }
