@@ -6,6 +6,10 @@ function parse(tokens) {
 
   function parseExpression() {
 
+    if (i >= tokens.length) {
+      throw new SyntaxError('Unexpected end of input');
+    }
+
     const left = tokens[i++];
 
 
@@ -13,6 +17,8 @@ function parse(tokens) {
     if (tokens[i] && ['PLUS', 'MINUS', 'GT', 'LT', 'EQEQ'].includes(tokens[i].type)) {
 
       const operator = tokens[i++];
+
+      if (!tokens[i]) throw new SyntaxError('Expected right-hand operand');
 
       const right = tokens[i++];
 
@@ -53,6 +59,13 @@ function parse(tokens) {
     // set x to ...
 
     if (token.type === 'SET') {
+
+      if (!tokens[i + 1] || tokens[i + 1].type !== 'IDENTIFIER') {
+        throw new SyntaxError("'SET' expects a variable name");
+      }
+      if (!tokens[i + 2] || tokens[i + 2].type !== 'TO') {
+        throw new SyntaxError("'SET' expects 'TO' after variable name");
+      }
 
       const name = tokens[i + 1].value;
 
@@ -112,6 +125,9 @@ function parse(tokens) {
 
 
 
+      if (!tokens[i] || tokens[i].type !== 'THEN') {
+        throw new SyntaxError("'IF' expects 'THEN' after condition");
+      }
       i++; // skip THEN
 
 
@@ -142,8 +158,9 @@ function parse(tokens) {
 
       }
 
-
-
+      if (!tokens[i]) {
+        throw new SyntaxError("'IF' block missing 'END'");
+      }
       i++; // skip END
 
 
@@ -179,4 +196,3 @@ function parse(tokens) {
 
 
 module.exports = { parse };
-
