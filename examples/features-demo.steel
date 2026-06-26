@@ -1,0 +1,95 @@
+// Steel Language v2.0 - Feature Showcase
+
+// === Variables & Types ===
+set name to "Steel"
+set version to 2
+set pi_approx to 3.14
+set is_awesome to true
+set nothing to null
+
+say "=== Variables ==="
+say name
+say version
+say pi_approx
+say is_awesome
+say nothing
+
+// === Arithmetic & Operators ===
+say ""
+say "=== Math ==="
+set x to 42
+set y to 13
+say x + y
+say x - y
+say x * y
+say x / y
+say x % y
+say x > y
+say x < y
+say x >= y
+say x <= y
+say x == 42
+say x != 13
+
+// === Boolean Logic ===
+say ""
+say "=== Boolean Logic ==="
+say true and false
+say true or false
+say not false
+say (x > 40) and (y < 20)
+say (x > 100) or (y < 20)
+
+// === String Operations ===
+say ""
+say "=== String Operations ==="
+set greeting to "Hello, World!"
+say len(greeting)
+say upper(greeting)
+say lower(greeting)
+say trim("   spaces   ")
+say substring(greeting, 7)
+say substring(greeting, 0, 5)
+say replace(greeting, "World", "Steel")
+say contains(greeting, "World")
+say startsWith(greeting, "Hello")
+say endsWith(greeting, "!")
+say charAt(greeting, 0)
+say indexOf(greeting, "World")
+say repeat("Ha", 3)
+say padStart("Steel", 10, "-")
+say padEnd("Steel", 10, "-")
+
+// === Template Strings ===
+say ""
+say "=== Template Strings ==="
+set lang to "Steel"
+say `Welcome to ${lang} v${version}!`
+say `2 + 2 = ${2 + 2}`
+
+// === Built-in Math Functions ===
+say ""
+say "=== Math Built-ins ==="
+say abs(-42)
+say round(3.7)
+say floor(3.7)
+say ceil(3.2)
+say sqrt(16)
+say pow(2, 10)
+say min(10, 20, 5)
+say max(10, 20, 5)
+say random()
+say pi
+say e
+
+// === Type Checking ===
+say ""
+say "=== Type Checking ==="
+say type(42)
+say type("hello")
+say type(true)
+say type([1, 2, 3])
+say type(null)
+say isNumber(42)
+say isString("hi")
+say isArray([1, 2])

@@ -1,8 +1,8 @@
+# Steel Language v2.0
+
 [![npm](https://img.shields.io/npm/v/steel-lang-2)](https://www.npmjs.com/package/steel-lang-2)
 
-Steel is a simple, readable programming language designed to be easy to learn and intuitive to use.
-
-It focuses on clean syntax, minimal complexity, and fast execution through a custom JavaScript interpreter.
+Steel is a simple, readable programming language designed to be easy to learn and intuitive to use. It focuses on clean syntax, minimal complexity, and fast execution through a custom JavaScript interpreter.
 
 ## Install
 
@@ -10,110 +10,100 @@ It focuses on clean syntax, minimal complexity, and fast execution through a cus
 npm install steel-lang-2
 ```
 
+## Features
 
+- **Variables**: `set x to 10`
+- **Output**: `say "Hello!"`
+- **Template Strings**: `` `Hello ${name}!` ``
+- **Conditionals**: `if / elseif / else / end`
+- **Loops**: `while / for / for each / repeat`
+- **Functions**: `define name as (params) ... return value end` with closures and recursion
+- **Arrays**: `[1, 2, 3]` with index access, `set arr[0] to val`
+- **Full Operators**: `+ - * / % > < >= <= == != and or not`
+- **Comments**: `// line comments`
+- **Booleans**: `true`, `false`, `null`
+- **Operator Precedence**: Proper precedence climbing (multiplication before addition, etc.)
 
+## Built-in Functions
 
+### Math
+`abs`, `round`, `floor`, `ceil`, `sqrt`, `pow`, `min`, `max`, `random`, `pi`, `e`
 
- Features:
-• 🧠 Human-readable syntax
-• ⚡ Lightweight interpreter (Node.js)
-• 🧱 Simple variable system
-• 🔁 Control flow (if statements, loops)
-• 💬 Built-in output (say)
-• 🎨 VS Code syntax highlighting support
-• 🔧 Easy to extend and modify
+### String
+`len`, `upper`, `lower`, `trim`, `substring`, `replace`, `split`, `join`, `contains`, `charAt`, `indexOf`, `startsWith`, `endsWith`, `repeat`, `padStart`, `padEnd`
 
+### Array
+`push`, `pop`, `shift`, `unshift`, `reverse`, `sort`, `slice`, `includes`, `flat`, `range`
 
+### Type
+`type`, `isNumber`, `isString`, `isArray`, `toString`, `toNumber`
 
+### Misc
+`clock`, `sleep`, `input`
 
-Project Structure:
+## Quick Start
 
-steel-lang/
-├── src/ # Language engine
-│ ├── lexer.js
-│ ├── parser.js
-│ ├── interpreter.js
-│ ├── environment.js
-│ └── index.js
-├── examples/ # Example programs
-│ ├── hello.steel
-│ ├── logic.steel
-│ └── variables.steel
-├── stl/ # VS Code extension
-│ ├── syntaxes/
-│ ├── icons/
-│ └── package.json
-└── README.md
+```bash
+git clone https://github.com/magnexis/Steel-lang.git
+cd Steel-lang
+node src/index.js examples/hello.steel
+```
 
+## Example
 
+```steel
+// Variables and types
+set name to "Steel"
+set version to 2
 
-
-
-🚀 Getting Started
-
-Clone the repository
-
-1. git clone https://github.com/theworker02/steel-lang.git
-
-2. cd steel-lang
-
-
-
-Run a Steel program
-
-3. "node src/index.js examples/hello.steel"
-
-
-🧪 Example:
-
-set x to 10
-
-if x > 5 then
-say "Steel is working!"
+// Functions with recursion
+define factorial as (n)
+  if n <= 1 then
+    return 1
+  end
+  return n * factorial(n - 1)
 end
 
+say factorial(10)  // 3628800
 
-https://steel-lang.base44.app
+// Arrays and loops
+set nums to [1, 2, 3, 4, 5]
+for each n in nums
+  say n * n
+end
 
+// Higher-order patterns
+define sum as (arr)
+  set total to 0
+  for each val in arr
+    set total to total + val
+  end
+  return total
+end
 
-🧩 VS Code Extension:
+say sum(range(1, 101))  // 5050
+```
 
-Steel includes a custom VS Code extension for syntax highlighting.
+## Project Structure
 
-Run locally: “cd stl”
+```
+steel-lang/
+├── src/           # Language engine
+│   ├── lexer.js       # Tokenizer
+│   ├── parser.js      # Recursive descent parser with precedence climbing
+│   ├── interpreter.js # Tree-walking interpreter
+│   ├── environment.js # Scope, built-ins, function closures
+│   └── index.js       # CLI entry point
+├── examples/      # Example programs
+│   ├── hello.steel
+│   ├── logic.steel
+│   ├── variables.steel
+│   ├── features-demo.steel
+│   ├── control-flow.steel
+│   └── functions-arrays.steel
+└── stl/           # VS Code extension
+```
 
-Then open the folder in VS code and press: F5
+## License
 
-
-🎯 Goals:
-
-• Keep syntax simple and readable
-• Build a fully custom language ecosystem
-• Add functions, modules, and advanced features
-• Expand tooling (CLI, debugger, autocomplete)
-
-
-https://steel-lang.base44.app
-
-
-🛠️ Future Plans:
-
-• CLI command (steel run file.steel)
-• Error handling improvements
-• Function system
-• Package manager (maybe 👀)
-• Full VS Code integration (IntelliSense)
-
-
-🤝 Contributing:
-
-Pull requests are welcome. This project is actively evolving and is considered to me still a work in progress. A lot has to be done honestly.
-
-License: MIT License
-
-Author: theworker02
-
-⚙️ Status:
-
-🚧 Early Development/Work in progress, but fully functional
-
+MIT

@@ -1,0 +1,89 @@
+// Control Flow Demo - Steel Language v2.0
+
+// === If / Else If / Else ===
+say "=== If / Else If / Else ==="
+
+set score to 85
+
+if score >= 90 then
+  say "Grade: A"
+elseif score >= 80 then
+  say "Grade: B"
+elseif score >= 70 then
+  say "Grade: C"
+elseif score >= 60 then
+  say "Grade: D"
+else
+  say "Grade: F"
+end
+
+// === While Loop ===
+say ""
+say "=== While Loop (Countdown) ==="
+
+set countdown to 5
+while countdown > 0 do
+  say countdown
+  set countdown to countdown - 1
+end
+say "Liftoff!"
+
+// === For Loop ===
+say ""
+say "=== For Loop ==="
+
+for i to 5
+  say "Iteration " + i
+end
+
+// For loop with step
+say ""
+say "=== For Loop with Step ==="
+
+for x to 20 step 5
+  say x
+end
+
+// === For Each ===
+say ""
+say "=== For Each ==="
+
+set fruits to ["apple", "banana", "cherry", "date", "elderberry"]
+for each fruit in fruits
+  say fruit + " has " + len(fruit) + " characters"
+end
+
+// === Repeat ===
+say ""
+say "=== Repeat ==="
+
+repeat 3
+  say "Repetition!"
+end
+
+// === Break and Continue ===
+say ""
+say "=== Break & Continue ==="
+
+for i to 10
+  if i == 7 then
+    break
+  end
+  if i % 2 == 0 then
+    continue
+  end
+  say "Odd number: " + i
+end
+
+// === Nested Loops ===
+say ""
+say "=== Nested Loops (Multiplication Table) ==="
+
+for row to 5
+  set line to ""
+  for col to 5
+    set product to (row + 1) * (col + 1)
+    set line to line + product + "\t"
+  end
+  say line
+end
