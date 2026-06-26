@@ -1,0 +1,106 @@
+# Steel 2.0 — Functions, Loops, and Control Flow
+
+# ---- Functions ----
+function greet name does
+  say "Hello, " + name + "!"
+end
+
+function factorial n does
+  if n <= 1 then
+    return 1
+  end
+  set result to n * factorial with n - 1
+  return result
+end
+
+function is_even n does
+  return n % 2 == 0
+end
+
+function range_sum a, b does
+  set total to 0
+  set i to a
+  while i <= b do
+    set total to total + i
+    set i to i + 1
+  end
+  return total
+end
+
+function power_of base, exp does
+  set result to 1
+  set i to 0
+  while i < exp do
+    set result to result * base
+    set i to i + 1
+  end
+  return result
+end
+
+# ---- Test the functions ----
+greet with "Steel Developer"
+
+say ""
+say "Factorial of 10: " + factorial with 10
+say "Factorial of 5: " + factorial with 5
+say "Factorial of 0: " + factorial with 0
+
+say ""
+say "Even numbers 1-20:"
+set n to 1
+while n <= 20 do
+  if is_even with n then
+    say "  " + n + " is even"
+  end
+  set n to n + 1
+end
+
+say ""
+say "Sum of 1 to 100: " + range_sum with 1, 100
+say "Sum of 50 to 150: " + range_sum with 50, 150
+
+say ""
+say "Power function:"
+say "  2^10 = " + power_of with 2, 10
+say "  3^5 = " + power_of with 3, 5
+say "  10^3 = " + power_of with 10, 3
+
+# ---- FizzBuzz ----
+say ""
+say "FizzBuzz 1-30:"
+set i to 1
+while i <= 30 do
+  if i % 15 == 0 then
+    say "  " + i + " — FizzBuzz"
+  else if i % 3 == 0 then
+    say "  " + i + " — Fizz"
+  else if i % 5 == 0 then
+    say "  " + i + " — Buzz"
+  else
+    say "  " + i
+  end
+  set i to i + 1
+end
+
+# ---- Random numbers ----
+say ""
+say "Generating 5 random numbers between 1 and 100:"
+repeat 5 times
+  say "  " + random_int with 1, 100
+end
+
+# ---- String manipulation demo ----
+say ""
+say "String manipulation:"
+set sentence to "the quick brown fox jumps over the lazy dog"
+say "  Length: " + length with sentence
+say "  Uppercased: " + upper with sentence
+say "  First word upper: " + upper with "the" + substring with sentence, 3, 99
+
+# ---- Operator precedence ----
+say ""
+say "Operator precedence:"
+say "  2 + 3 * 4 = " + (2 + 3 * 4)
+say "  10 - 2 - 3 = " + (10 - 2 - 3)
+say "  2 + 3 > 4 and 5 < 10 = " + (2 + 3 > 4 and 5 < 10)
+say "  not 1 == 2 = " + (not 1 == 2)

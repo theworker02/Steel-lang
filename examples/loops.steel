@@ -1,0 +1,61 @@
+# Steel 2.0 — Loops Demo
+
+# Repeat loop — count to 10
+say "Counting to 10 with repeat:"
+set counter to 0
+repeat 10 times
+  set counter to counter + 1
+  say "  " + counter
+end
+
+# While loop — countdown
+say ""
+say "Countdown from 5:"
+set countdown to 5
+while countdown > 0 do
+  say "  " + countdown + "..."
+  set countdown to countdown - 1
+end
+say "  Launch! 🚀"
+
+# Nested loops — multiplication table
+say ""
+say "Multiplication table (1-5):"
+set row to 1
+while row <= 5 do
+  set col to 1
+  set line to ""
+  while col <= 5 do
+    set line to line + "  " + (row * col)
+    set col to col + 1
+  end
+  say line
+  set row to row + 1
+end
+
+# Sum of squares
+say ""
+say "Sum of squares 1-10:"
+set total to 0
+set n to 1
+while n <= 10 do
+  set total to total + n * n
+  set n to n + 1
+end
+say "  Result: " + total
+
+# Pattern printing
+say ""
+say "Triangle pattern:"
+set size to 5
+set row to 1
+while row <= size do
+  set stars to ""
+  set col to 1
+  while col <= row do
+    set stars to stars + "* "
+    set col to col + 1
+  end
+  say "  " + stars
+  set row to row + 1
+end

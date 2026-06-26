@@ -1,356 +1,275 @@
 function parse(tokens) {
   let i = 0;
 
-  function peek() {
+  function current() {
     return tokens[i] || null;
   }
 
-  function expect(type) {
-    if (!tokens[i] || tokens[i].type !== type) {
-      const got = tokens[i] ? tokens[i].type : 'EOF';
-      throw new SyntaxError(`Expected ${type} but got ${got} (line ${tokens[i] ? tokens[i].line : '?'})`);
+  function expect(type, msg) {
+    const tok = tokens[i];
+    if (!tok || tok.type !== type) {
+      const loc = tok ? ` (line ${tok.line})` : ' (end of input)';
+      throw new SyntaxError(msg + loc);
     }
     return tokens[i++];
   }
 
-  const PREC = {
-    'OR': 1, 'AND': 2,
-    'EQEQ': 3, 'NEQ': 3,
-    'GT': 4, 'LT': 4, 'GTE': 4, 'LTE': 4,
-    'PLUS': 5, 'MINUS': 5,
-    'STAR': 6, 'SLASH': 6, 'PERCENT': 6, 'MOD': 6,
-  };
+  function peek() {
+    return tokens[i] || null;
+  }
 
-  function parseExpression() {
-    if (i >= tokens.length) {
-      throw new SyntaxError('Unexpected end of input');
-    }
+  /**
+   * Parse a full expression with operator precedence using Pratt parsing.
+   * Precedence levels (low to high):
+   *   1: OR
+   *   2: AND
+   *   3: NOT (unary prefix)
+   *   4: ==, !=
+   *   5: <, >, <=, >=
+   *   6: +, -
+   *   7: *, /, %
+   */
+  function parseExpression(minPrecedence) {
+    if (minPrecedence === undefined) minPrecedence = 0;
 
-    // Handle unary not / minus
-    if (tokens[i] && (tokens[i].type === 'NOT' || tokens[i].type === 'MINUS')) {
-      const op = tokens[i++];
-      const operand = parsePrimary();
-      const result = {
+    // Handle unary NOT
+    if (peek() && peek().type === 'NOT') {
+      const notTok = tokens[i++];
+      const operand = parseExpression(3); // NOT binds tighter than AND/OR
+      return {
         type: 'UnaryExpression',
-        operator: op.type === 'NOT' ? 'NOT' : 'MINUS',
-        operand,
+        operator: 'NOT',
+        operand: notTok,
+        right: operand,
       };
-      while (tokens[i] && PREC[tokens[i].type] >= 1) {
-        const binOp = tokens[i++];
-        const right = parseExpr(PREC[binOp.type] + 1);
-        return { type: 'BinaryExpression', left: result, operator: binOp.type, right };
-      }
-      return result;
     }
 
-    return parseExpr(0);
-  }
+    // Handle unary minus for negative numbers
+    if (peek() && peek().type === 'MINUS') {
+      const next = tokens[i + 1];
+      // Only treat as unary if next is a number, identifier, or another minus
+      if (next && (next.type === 'NUMBER' || next.type === 'IDENTIFIER' || next.type === 'MINUS')) {
+        const minusTok = tokens[i++];
+        const operand = parseExpression(7); // High precedence for unary minus
+        return {
+          type: 'UnaryExpression',
+          operator: 'NEGATE',
+          operand: minusTok,
+          right: operand,
+        };
+      }
+    }
 
-  function parseExpr(minPrec) {
-    let left = parsePrimaryWithPostfix();
-    while (tokens[i] && PREC[tokens[i].type] >= minPrec) {
+    let left = parseAtom();
+
+    while (true) {
+      const tok = peek();
+      if (!tok) break;
+
+      const prec = getPrecedence(tok.type);
+      if (prec === null || prec < minPrecedence) break;
+
       const op = tokens[i++];
-      const nextMinPrec = PREC[op.type] + 1;
-      const right = parseExpr(nextMinPrec);
-      left = { type: 'BinaryExpression', left, operator: op.type, right };
+      const rightMin = prec + 1; // Left-associative
+      const right = parseExpression(rightMin);
+
+      left = {
+        type: 'BinaryExpression',
+        left,
+        operator: op.type,
+        right,
+      };
     }
+
     return left;
   }
 
-  function parsePrimaryWithPostfix() {
-    let left = parsePrimary();
-    while (tokens[i]) {
-      if (tokens[i].type === 'LBRACKET') {
-        i++; // skip [
-        const index = parseExpression();
-        expect('RBRACKET');
-        left = { type: 'IndexAccess', object: left, index };
-      } else if (tokens[i].type === 'LPAREN' && left.type === 'IDENTIFIER') {
-        i++; // skip (
-        const args = [];
-        if (tokens[i] && tokens[i].type !== 'RPAREN') {
-          args.push(parseExpression());
-          while (tokens[i] && tokens[i].type === 'COMMA') {
-            i++; // skip comma
-            args.push(parseExpression());
-          }
-        }
-        expect('RPAREN');
-        left = { type: 'CallExpression', callee: left, args };
-      } else {
-        break;
-      }
+  function getPrecedence(tokenType) {
+    switch (tokenType) {
+      case 'OR': return 1;
+      case 'AND': return 2;
+      case 'EQEQ':
+      case 'NEQ': return 4;
+      case 'GT':
+      case 'LT':
+      case 'GTE':
+      case 'LTE': return 5;
+      case 'PLUS':
+      case 'MINUS': return 6;
+      case 'STAR':
+      case 'SLASH':
+      case 'PERCENT': return 7;
+      default: return null;
     }
-    return left;
   }
 
-  function parsePrimary() {
-    const token = tokens[i];
-    if (!token) throw new SyntaxError('Unexpected end of input');
+  function parseAtom() {
+    const tok = peek();
+    if (!tok) {
+      throw new SyntaxError('Expected expression (end of input)');
+    }
 
-    if (token.type === 'NUMBER') {
-      i++;
-      return token;
-    }
-    if (token.type === 'STRING') {
-      i++;
-      return token;
-    }
-    if (token.type === 'TEMPLATE_STRING') {
-      i++;
-      return token;
-    }
-    if (token.type === 'TRUE') {
-      i++;
-      return { type: 'BOOLEAN', value: true };
-    }
-    if (token.type === 'FALSE') {
-      i++;
-      return { type: 'BOOLEAN', value: false };
-    }
-    if (token.type === 'NULL_LIT') {
-      i++;
-      return { type: 'NULL' };
-    }
-    if (token.type === 'IDENTIFIER') {
-      i++;
-      return token;
-    }
-    // Keywords used as identifiers in expression context (e.g., repeat("Ha", 3))
-    const KEYWORD_AS_IDENT = {
-      'REPEAT': 'repeat', 'ARRAY': 'array', 'OF': 'of',
-      'IN': 'in', 'STEP': 'step', 'TIMES': 'times', 'MOD': 'mod',
-    };
-    if (KEYWORD_AS_IDENT[token.type]) {
-      i++;
-      return { type: 'IDENTIFIER', value: KEYWORD_AS_IDENT[token.type] };
-    }
-    // Array literal [1, 2, 3]
-    if (token.type === 'LBRACKET') {
-      i++; // skip [
-      const elements = [];
-      if (tokens[i] && tokens[i].type !== 'RBRACKET') {
-        elements.push(parseExpression());
-        while (tokens[i] && tokens[i].type === 'COMMA') {
-          i++; // skip comma
-          if (tokens[i] && tokens[i].type !== 'RBRACKET') {
-            elements.push(parseExpression());
-          }
-        }
-      }
-      expect('RBRACKET');
-      return { type: 'ARRAY_LITERAL', elements };
-    }
-    if (token.type === 'LPAREN') {
+    // Parenthesized expression: ( expr )
+    if (tok.type === 'LPAREN') {
       i++; // skip (
-      const expr = parseExpression();
-      expect('RPAREN');
+      const expr = parseExpression(0);
+      if (!peek() || peek().type !== 'RPAREN') {
+        throw new SyntaxError(`Expected ')' (line ${tok.line})`);
+      }
+      i++; // skip )
       return expr;
     }
-    throw new SyntaxError(`Unexpected token ${token.type} (line ${token.line})`);
-  }
 
-  // Parse a block of statements until a terminator
-  function parseBlock(terminators = ['END', 'ELSE', 'ELSEIF']) {
-    const body = [];
-
-    while (tokens[i] && !terminators.includes(tokens[i].type)) {
-      const stmt = parseStatement();
-      if (stmt) body.push(stmt);
+    i++; // advance
+    if (tok.type === 'NUMBER') return tok;
+    if (tok.type === 'STRING') return tok;
+    if (tok.type === 'TRUE') return tok;
+    if (tok.type === 'FALSE') return tok;
+    if (tok.type === 'IDENTIFIER') {
+      // Check for function call: name with arg1, arg2
+      if (peek() && peek().type === 'IDENTIFIER' && peek().value === 'with') {
+        i++; // skip 'with'
+        const args = parseArgumentList();
+        return {
+          type: 'CallExpression',
+          name: tok.value,
+          args,
+          line: tok.line,
+        };
+      }
+      return tok;
     }
-
-    return body;
+    throw new SyntaxError(`Unexpected token "${tok.type}" (line ${tok.line})`);
   }
 
+  /**
+   * Parse any statement and return its AST node.
+   */
   function parseStatement() {
-    const token = tokens[i];
+    const token = peek();
     if (!token) return null;
 
-    // set x to ...
+    // set <name> to <expr>
     if (token.type === 'SET') {
-      if (!tokens[i + 1] || tokens[i + 1].type !== 'IDENTIFIER') {
-        throw new SyntaxError("'SET' expects a variable name");
-      }
-      const name = tokens[i + 1].value;
-
-      if (tokens[i + 2] && tokens[i + 2].type === 'LBRACKET') {
-        // Index assignment: set arr[idx] to val
-        i += 2; // skip SET name
-        i++; // skip [
-        const index = parseExpression();
-        expect('RBRACKET');
-        expect('TO');
-        const value = parseExpression();
-        return { type: 'Assignment', target: { type: 'IndexAssignment', object: name, index }, value };
-      }
-
-      if (!tokens[i + 2] || tokens[i + 2].type !== 'TO') {
-        throw new SyntaxError("'SET' expects 'TO' after variable name");
-      }
-
-      i += 3; // skip SET name TO
+      i++;
+      const nameTok = expect('IDENTIFIER', "'SET' expects a variable name");
+      expect('TO', "'SET' expects 'TO' after variable name");
       const value = parseExpression();
-      return { type: 'Assignment', target: { type: 'VariableAssignment', name }, value };
+      return {
+        type: 'VariableDeclaration',
+        name: nameTok.value,
+        value,
+        line: token.line,
+      };
     }
 
-    // say ...
+    // say <expr>
     if (token.type === 'SAY') {
       i++;
       const value = parseExpression();
-      return { type: 'SayStatement', value };
+      return {
+        type: 'SayStatement',
+        value,
+        line: token.line,
+      };
     }
 
-    // if condition then ... [elseif ... then ...] [else ...] end
+    // if <cond> then ... [else ...] end
     if (token.type === 'IF') {
-      i++;
-      const condition = parseExpression();
-      expect('THEN');
-
-      const body = parseBlock(['END', 'ELSE', 'ELSEIF']);
-      const branches = [{ condition, body }];
-
-      // Handle elseif chains
-      while (tokens[i] && tokens[i].type === 'ELSEIF') {
-        i++; // skip ELSEIF
-        const elifCond = parseExpression();
-        expect('THEN');
-        const elifBody = parseBlock(['END', 'ELSE', 'ELSEIF']);
-        branches.push({ condition: elifCond, body: elifBody });
-      }
-
-      // Handle else
-      let elseBody = null;
-      if (tokens[i] && tokens[i].type === 'ELSE') {
-        i++; // skip ELSE
-        elseBody = parseBlock(['END']);
-      }
-
-      expect('END');
-      return { type: 'IfStatement', branches, elseBody };
+      return parseIfStatement();
     }
 
-    // while condition do ... end
+    // repeat <count> times ... end
+    if (token.type === 'REPEAT') {
+      i++;
+      const count = parseExpression();
+      expect('TIMES', "'REPEAT' expects 'TIMES' after count");
+      const body = parseBlock();
+      expect('END', "'REPEAT' block missing 'END'");
+      return {
+        type: 'RepeatStatement',
+        count,
+        body,
+        line: token.line,
+      };
+    }
+
+    // while <cond> do ... end
     if (token.type === 'WHILE') {
       i++;
       const condition = parseExpression();
-      expect('DO');
-      const body = parseBlock(['END']);
-      expect('END');
-      return { type: 'WhileStatement', condition, body };
+      expect('DO', "'WHILE' expects 'DO' after condition");
+      const body = parseBlock();
+      expect('END', "'WHILE' block missing 'END'");
+      return {
+        type: 'WhileStatement',
+        condition,
+        body,
+        line: token.line,
+      };
     }
 
-    // for each item in collection ... end
-    // for x from 1 to 10 ... end
-    // for x from 1 to 10 step 2 ... end
-    if (token.type === 'FOR') {
+    // function <name> does ... end
+    if (token.type === 'FUNCTION') {
       i++;
-      if (tokens[i] && tokens[i].type === 'EACH') {
-        // for each item in collection ... end
-        i++; // skip EACH
-        const itemName = expect('IDENTIFIER').value;
-        expect('IN');
-        const collection = parseExpression();
-        const body = parseBlock(['END']);
-        expect('END');
-        return { type: 'ForEachStatement', itemName, collection, body };
-      } else {
-        // for x from/to
-        const varName = expect('IDENTIFIER').value;
-        expect('TO');
-        const start = { type: 'NUMBER', value: 0 }; // implicit start 0
-        const end = parseExpression();
-        let step = { type: 'NUMBER', value: 1 };
-        if (tokens[i] && tokens[i].type === 'STEP') {
-          i++; // skip STEP
-          step = parseExpression();
-        }
-        const body = parseBlock(['END']);
-        expect('END');
-        return { type: 'ForStatement', varName, start, end, step, body };
-      }
-    }
+      const nameTok = expect('IDENTIFIER', "'FUNCTION' expects a function name");
 
-    // repeat N times ... end (not a function call)
-    if (token.type === 'REPEAT' && tokens[i + 1] && tokens[i + 1].type !== 'LPAREN') {
-      i++;
-      const count = parseExpression();
-      if (tokens[i] && tokens[i].type === 'TIMES') {
-        i++; // skip TIMES (optional)
-      }
-      const body = parseBlock(['END']);
-      expect('END');
-      return { type: 'RepeatStatement', count, body };
-    }
-
-    // define name as (params) ... end
-    if (token.type === 'DEFINE') {
-      i++;
-      const name = expect('IDENTIFIER').value;
+      // Parse optional parameters (comma-separated)
       const params = [];
-
-      // Check for parameters: as (param1, param2)
-      if (tokens[i] && tokens[i].type === 'AS') {
-        i++; // skip AS
-        if (tokens[i] && tokens[i].type === 'LPAREN') {
-          i++; // skip (
-          if (tokens[i] && tokens[i].type !== 'RPAREN') {
-            params.push(expect('IDENTIFIER').value);
-            while (tokens[i] && tokens[i].type === 'COMMA') {
-              i++; // skip comma
-              params.push(expect('IDENTIFIER').value);
-            }
-          }
-          expect('RPAREN');
+      while (peek() && peek().type === 'IDENTIFIER' && peek().value !== 'does') {
+        params.push(tokens[i++].value);
+        // Skip comma between params
+        if (peek() && peek().type === 'COMMA') {
+          i++;
         }
       }
 
-      const body = parseBlock(['END']);
-      expect('END');
-      return { type: 'FunctionDeclaration', name, params, body };
+      expect('DOES', "'FUNCTION' expects 'DOES' after name/params");
+      const body = parseBlock();
+      return {
+        type: 'FunctionDeclaration',
+        name: nameTok.value,
+        params,
+        body,
+        line: token.line,
+      };
     }
 
-    // return value
+    // return <expr>
     if (token.type === 'RETURN') {
       i++;
-      let value = { type: 'NULL' };
-      if (tokens[i] && !['END', 'ELSE', 'ELSEIF'].includes(tokens[i].type)) {
+      let value = null;
+      if (peek() && peek().type !== 'END') {
         value = parseExpression();
       }
-      return { type: 'ReturnStatement', value };
+      return {
+        type: 'ReturnStatement',
+        value,
+        line: token.line,
+      };
     }
 
-    // break
-    if (token.type === 'BREAK') {
-      i++;
-      return { type: 'BreakStatement' };
-    }
-
-    // continue
-    if (token.type === 'CONTINUE') {
-      i++;
-      return { type: 'ContinueStatement' };
-    }
-
-    // ask "prompt" into var
-    if (token.type === 'ASK') {
-      i++;
-      const prompt = parseExpression();
-      let varName = null;
-      // Check for "into" keyword or just use next identifier
-      if (tokens[i] && tokens[i].type === 'IDENTIFIER') {
-        varName = tokens[i].value;
-        i++;
+    // Function call as a statement: <identifier>(<args>)
+    if (token.type === 'IDENTIFIER') {
+      const nameTok = tokens[i++];
+      if (peek() && peek().type === 'IDENTIFIER' && peek().value === 'with') {
+        // call-style: name with arg1, arg2
+        i++; // skip 'with'
+        const args = parseArgumentList();
+        return {
+          type: 'CallExpression',
+          name: nameTok.value,
+          args,
+          line: nameTok.line,
+        };
       }
-      return { type: 'AskStatement', prompt, varName };
-    }
-
-    // Expression statement (bare expression or function call)
-    const EXPR_STARTERS = ['IDENTIFIER', 'NUMBER', 'STRING', 'TEMPLATE_STRING', 'TRUE', 'FALSE',
-         'NULL_LIT', 'LBRACKET', 'LPAREN', 'NOT', 'MINUS',
-         'REPEAT', 'ARRAY', 'OF', 'IN', 'STEP', 'TIMES', 'MOD'];
-    if (EXPR_STARTERS.includes(token.type)) {
-      const expr = parseExpression();
-      return { type: 'ExpressionStatement', expression: expr };
+      // Otherwise it's a bare identifier — treat as a call with no args
+      return {
+        type: 'CallExpression',
+        name: nameTok.value,
+        args: [],
+        line: nameTok.line,
+      };
     }
 
     // Skip unknown tokens
@@ -358,6 +277,74 @@ function parse(tokens) {
     return null;
   }
 
+  /**
+   * Parse if/else-if/else chain.
+   * Syntax: if ... then ... [else if ... then ...]* [else ...] end
+   * Only the outermost call expects END.
+   */
+  function parseIfStatement(isChain) {
+    const ifTok = expect('IF', "Expected 'IF'");
+    const condition = parseExpression();
+    expect('THEN', "'IF' expects 'THEN' after condition");
+    const body = parseBlock();
+
+    let elseBody = null;
+
+    // Check for else or else-if
+    if (peek() && peek().type === 'ELSE') {
+      i++; // skip ELSE
+      if (peek() && peek().type === 'IF') {
+        // else-if: parse recursively, passing isChain=true so inner ifs don't eat END
+        elseBody = [parseIfStatement(true)];
+      } else {
+        elseBody = parseBlock();
+      }
+    }
+
+    // Only the outermost if (or the caller of the chain) expects END
+    if (!isChain) {
+      expect('END', "'IF' block missing 'END'");
+    }
+
+    return {
+      type: 'IfStatement',
+      condition,
+      body,
+      elseBody,
+      line: ifTok.line,
+    };
+  }
+
+  /**
+   * Parse a block of statements until END or ELSE is encountered.
+   */
+  function parseBlock() {
+    const body = [];
+    while (peek() && peek().type !== 'END' && peek().type !== 'ELSE') {
+      const stmt = parseStatement();
+      if (stmt) body.push(stmt);
+    }
+    return body;
+  }
+
+  /**
+   * Parse comma-separated arguments for function calls.
+   * Steel syntax: arg1, arg2, arg3
+   */
+  function parseArgumentList() {
+    const args = [];
+    if (!peek() || (peek().type === 'END' || peek().type === 'ELSE' || peek().type === 'RPAREN')) {
+      return args;
+    }
+    args.push(parseExpression());
+    while (peek() && peek().type === 'COMMA') {
+      i++; // skip comma
+      args.push(parseExpression());
+    }
+    return args;
+  }
+
+  // Parse all statements
   const ast = [];
   while (i < tokens.length) {
     const stmt = parseStatement();

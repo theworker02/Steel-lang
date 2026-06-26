@@ -3,18 +3,24 @@
   "name": "steel-lang-2",
   "version": "2.0.0",
   "files": [
-    "src/",
-    "icons/"
+    "src/"
   ],
-  "description": "A simple, human-readable scripting language",
+  "description": "A simple, human-readable scripting language with functions, loops, conditionals, and a standard library",
   "main": "src/index.js",
+  "bin": {
+    "steel": "src/index.js"
+  },
   "scripts": {
-    "start": "node src/index.js examples/hello.steel"
+    "start": "node src/index.js examples/hello.steel",
+    "repl": "node src/index.js"
   },
   "keywords": [
     "language",
     "interpreter",
-    "steel"
+    "steel",
+    "scripting",
+    "repl",
+    "beginner"
   ],
   "author": "theworker02",
   "license": "MIT",

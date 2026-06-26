@@ -1,0 +1,55 @@
+# Steel 2.0 — New Features Demo
+
+# Variables and arithmetic with all operators
+set x to 10
+set y to 3
+
+say "Arithmetic:"
+say "  " + x + " + " + y + " = " + (x + y)
+say "  " + x + " - " + y + " = " + (x - y)
+say "  " + x + " * " + y + " = " + (x * y)
+say "  " + x + " / " + y + " = " + (x / y)
+say "  " + x + " % " + y + " = " + (x % y)
+
+# Boolean logic
+say ""
+say "Logic:"
+set a to true
+set b to false
+say "  true and false = " + (a and b)
+say "  true or false = " + (a or b)
+say "  not true = " + (not a)
+
+# String operations with built-in functions
+say ""
+say "String functions:"
+set greeting to "Hello, World!"
+say "  length: " + length with greeting
+say "  upper: " + upper with greeting
+say "  lower: " + lower with greeting
+say "  contains 'World': " + contains with greeting, "World"
+say "  starts 'Hello': " + starts with greeting, "Hello"
+say "  ends '!': " + ends with greeting, "!"
+say "  substring(7, 12): " + substring with greeting, 7, 12
+say "  replace 'World' with 'Steel': " + replace with greeting, "World", "Steel"
+
+# Math functions
+say ""
+say "Math functions:"
+say "  abs(-42) = " + abs with -42
+say "  round(3.7) = " + round with 3.7
+say "  floor(3.7) = " + floor with 3.7
+say "  ceil(3.2) = " + ceil with 3.2
+say "  sqrt(144) = " + sqrt with 144
+say "  power(2, 10) = " + power with 2, 10
+say "  min(3, 7) = " + min with 3, 7
+say "  max(3, 7) = " + max with 3, 7
+say "  pi = " + pi
+
+# Type checking
+say ""
+say "Type checking:"
+say "  type_of 42 = " + type_of with 42
+say "  type_of 'hello' = " + type_of with "hello"
+say "  type_of true = " + type_of with true
+say "  to_string 42 = " + to_string with 42
